@@ -1,0 +1,88 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Physics AI Tutor</title>
+
+<link rel="stylesheet" href="style.css">
+
+<!-- OCR（后面AI阶段会用） -->
+<script src="https://unpkg.com/tesseract.js@5/dist/tesseract.min.js"></script>
+
+</head>
+
+<body>
+
+<header>
+    <h1>🔬 Physics AI Tutor</h1>
+    <p>物理题目解析 + 错题本系统</p>
+</header>
+
+<main>
+
+<!-- 输入区 -->
+<section class="box">
+
+    <h2>输入题目 / Input Question</h2>
+
+    <textarea id="questionInput" placeholder="请输入物理题目..."></textarea>
+
+    <input type="file" id="imageInput" accept="image/*">
+
+    <button id="analyzeBtn">开始分析</button>
+    <button id="saveBtn">⭐ 加入错题本</button>
+
+</section>
+
+<!-- 结果区 -->
+<section class="box">
+
+    <h2>解析结果</h2>
+
+    <div class="card">
+        <h3>题目类型</h3>
+        <p id="type">-</p>
+    </div>
+
+    <div class="card">
+        <h3>知识点</h3>
+        <p id="knowledge">-</p>
+    </div>
+
+    <div class="card">
+        <h3>中文解析</h3>
+        <p id="cn">-</p>
+    </div>
+
+    <div class="card">
+        <h3>English</h3>
+        <p id="en">-</p>
+    </div>
+
+    <div class="card">
+        <h3>物理历史</h3>
+        <p id="history">-</p>
+    </div>
+
+</section>
+
+<!-- 错题本 -->
+<section class="box">
+
+    <h2>📚 错题本 Notebook</h2>
+
+    <div id="notebookList"></div>
+
+</section>
+
+</main>
+
+<footer>
+<p>Physics AI Tutor © 2026</p>
+</footer>
+
+<script src="script.js"></script>
+
+</body>
+</html>
