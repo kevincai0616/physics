@@ -7,13 +7,33 @@ async function ocrImage(file) {
 }
 
 // ================= 模拟解析 =================
-function fakeAnalysis(text) {
+async function aiAnalysis(text) {
+
+    const response = await fetch("https://api.deepseek.com/v1/chat/completions", {
+        method: "POST",
+        headers: {
+            "Content-Type": "application/json",
+            "Authorization": "Bearer YOUR_API_KEY"
+        },
+        body: JSON.stringify({
+            model: "deepseek-chat",
+            messages: [
+                {
+                    role: "system",
+                    content: "你是一个物理老师，用中文+英文双语讲解物理题，包含步骤、公式和知识点"
+                },
+                {
+                    role: "user",
+                    content: text
+                }
+            ]
+        })
+    });
+
+    const data = await response.json();
+
     return {
-        type: "力学 Mechanics",
-        knowledge: "牛顿第二定律 F = ma",
-        cn: "这是中文解析（等待AI接入）",
-        en: "English explanation placeholder",
-        history: "牛顿在1687年提出经典力学体系"
+        answer: data.choices[0].message.content
     };
 }
 
@@ -69,8 +89,8 @@ window.onload = function () {
             text = await ocrImage(file);
         }
 
-        const result = fakeAnalysis(text);
-        showResult(result);
+        const result = await aiAnalysis(text);
+        document.getElementById("cn").innerText = result.answer;
     };
 
     // -------- 错题本按钮（已修复） --------

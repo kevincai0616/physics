@@ -7,7 +7,7 @@
 
 <link rel="stylesheet" href="style.css">
 
-<!-- OCR（后面AI阶段会用） -->
+<!-- OCR库（备用） -->
 <script src="https://unpkg.com/tesseract.js@5/dist/tesseract.min.js"></script>
 
 </head>
@@ -24,18 +24,20 @@
 <!-- 输入区 -->
 <section class="box">
 
-    <h2>输入题目 / Input Question</h2>
+    <h2>输入题目</h2>
 
     <textarea id="questionInput" placeholder="请输入物理题目..."></textarea>
 
     <input type="file" id="imageInput" accept="image/*">
+
+    <br><br>
 
     <button id="analyzeBtn">开始分析</button>
     <button id="saveBtn">⭐ 加入错题本</button>
 
 </section>
 
-<!-- 结果区 -->
+<!-- 解析结果 -->
 <section class="box">
 
     <h2>解析结果</h2>
@@ -61,7 +63,7 @@
     </div>
 
     <div class="card">
-        <h3>物理历史</h3>
+        <h3>历史知识</h3>
         <p id="history">-</p>
     </div>
 
