@@ -57,3 +57,11 @@ button:hover {
 .deleteBtn:hover {
     opacity: 0.9;
 }
+.category {
+    display: inline-block;
+    padding: 4px 10px;
+    border-radius: 12px;
+    background: #1976d2;
+    color: white;
+    font-size: 12px;
+}

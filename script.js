@@ -73,8 +73,9 @@ function renderNotebook() {
         div.className = "card";
 
         div.innerHTML = `
-            <p><b>题目：</b>${item.question}</p>
-            <p><b>时间：</b>${item.time}</p>
+            <p><b>分类：</b>${item.category}</p>
+<p><b>题目：</b>${item.question}</p>
+<p><b>时间：</b>${item.time}</p>
 
             <button class="deleteBtn" data-index="${index}">
                 🗑 删除
@@ -143,10 +144,14 @@ window.onload = function () {
     if (saveBtn) {
         saveBtn.onclick = function () {
 
-            const item = {
-                question: document.getElementById("questionInput").value,
-                time: new Date().toLocaleString()
-            };
+            const question =
+    document.getElementById("questionInput").value;
+
+const item = {
+    question: question,
+    category: classifyQuestion(question),
+    time: new Date().toLocaleString()
+};
 
             let data = getNotebook();
             data.push(item);
@@ -160,3 +165,45 @@ window.onload = function () {
 
     renderNotebook();
 };
+function classifyQuestion(question) {
+
+    const text = question.toLowerCase();
+
+    if (
+        text.includes("力") ||
+        text.includes("牛顿") ||
+        text.includes("加速度") ||
+        text.includes("速度") ||
+        text.includes("运动")
+    ) {
+        return "力学";
+    }
+
+    if (
+        text.includes("电") ||
+        text.includes("电流") ||
+        text.includes("电压") ||
+        text.includes("电阻")
+    ) {
+        return "电学";
+    }
+
+    if (
+        text.includes("光") ||
+        text.includes("透镜") ||
+        text.includes("反射") ||
+        text.includes("折射")
+    ) {
+        return "光学";
+    }
+
+    if (
+        text.includes("热") ||
+        text.includes("温度") ||
+        text.includes("内能")
+    ) {
+        return "热学";
+    }
+
+    return "其他";
+}
