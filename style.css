@@ -49,3 +49,11 @@ button:hover {
     margin-top: 10px;
     border-radius: 8px;
 }
+.deleteBtn {
+    background: #d32f2f;
+    margin-top: 10px;
+}
+
+.deleteBtn:hover {
+    opacity: 0.9;
+}

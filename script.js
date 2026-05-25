@@ -56,24 +56,68 @@ function saveNotebook(data) {
 }
 
 function renderNotebook() {
+
     const list = document.getElementById("notebookList");
     const data = getNotebook();
 
     list.innerHTML = "";
 
-    data.forEach(item => {
+    if (data.length === 0) {
+        list.innerHTML = "<p>暂无错题</p>";
+        return;
+    }
+
+    data.forEach((item, index) => {
+
         const div = document.createElement("div");
         div.className = "card";
 
         div.innerHTML = `
             <p><b>题目：</b>${item.question}</p>
             <p><b>时间：</b>${item.time}</p>
+
+            <button class="deleteBtn" data-index="${index}">
+                🗑 删除
+            </button>
         `;
 
         list.appendChild(div);
     });
-}
 
+    document.querySelectorAll(".deleteBtn").forEach(btn => {
+
+        btn.addEventListener("click", function () {
+
+            const index = this.dataset.index;
+
+            deleteQuestion(index);
+
+        });
+
+    });
+    document.getElementById("clearNotebookBtn").onclick = function () {
+
+    if (confirm("确定清空全部错题吗？")) {
+
+        localStorage.removeItem("notebook");
+
+        renderNotebook();
+    }
+
+};
+
+}
+function deleteQuestion(index) {
+
+    let data = getNotebook();
+
+    data.splice(index, 1);
+
+    saveNotebook(data);
+
+    renderNotebook();
+
+}
 // ================= 页面加载后绑定事件（关键修复） =================
 window.onload = function () {
 
