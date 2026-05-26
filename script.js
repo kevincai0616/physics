@@ -1,3 +1,7 @@
+const supabaseClient = supabase.createClient(
+  SUPABASE_URL,
+  SUPABASE_KEY
+);
 // ================= OCR（备用） =================
 async function ocrImage(file) {
     return new Promise((resolve) => {
@@ -47,37 +51,72 @@ function showResult(data) {
 }
 
 // ================= 错题本 =================
-function getNotebook() {
-    return JSON.parse(localStorage.getItem("notebook") || "[]");
-}
 
-function saveNotebook(data) {
-    localStorage.setItem("notebook", JSON.stringify(data));
-}
-
-function renderNotebook() {
+async function renderNotebook() {
 
     const list = document.getElementById("notebookList");
-    const data = getNotebook();
 
     list.innerHTML = "";
+
+    const { data, error } = await supabaseClient
+        .from("mistakes")
+        .select("*")
+        .order("created_at", { ascending: false });
+
+    if (error) {
+        console.error(error);
+        list.innerHTML = "<p>读取失败</p>";
+        return;
+    }
 
     if (data.length === 0) {
         list.innerHTML = "<p>暂无错题</p>";
         return;
     }
 
-    data.forEach((item, index) => {
+    data.forEach((item) => {
+
+        const categoryColor = {
+            "力学": "#1e88e5",
+            "电学": "#e53935",
+            "光学": "#43a047",
+            "热学": "#fb8c00",
+            "其他": "#757575"
+        };
+
+        const color =
+            categoryColor[item.category] || "#757575";
 
         const div = document.createElement("div");
+
         div.className = "card";
 
         div.innerHTML = `
-            <p><b>分类：</b>${item.category}</p>
-<p><b>题目：</b>${item.question}</p>
-<p><b>时间：</b>${item.time}</p>
+            <div
+                style="
+                display:inline-block;
+                padding:4px 10px;
+                border-radius:12px;
+                background:${color};
+                color:white;
+                font-size:12px;
+                margin-bottom:8px;
+            ">
+                ${item.category}
+            </div>
 
-            <button class="deleteBtn" data-index="${index}">
+            <p>
+                <b>题目：</b>
+                ${item.question}
+            </p>
+
+            <p style="font-size:12px;color:#666;">
+                ${new Date(item.created_at).toLocaleString()}
+            </p>
+
+            <button
+                class="deleteBtn"
+                data-id="${item.id}">
                 🗑 删除
             </button>
         `;
@@ -85,17 +124,21 @@ function renderNotebook() {
         list.appendChild(div);
     });
 
-    document.querySelectorAll(".deleteBtn").forEach(btn => {
+    document.querySelectorAll(".deleteBtn")
+        .forEach(btn => {
 
-        btn.addEventListener("click", function () {
+            btn.onclick = async function () {
 
-            const index = this.dataset.index;
+                const id = this.dataset.id;
 
-            deleteQuestion(index);
+                await deleteQuestion(id);
+
+            };
 
         });
 
-    });
+}
+
     document.getElementById("clearNotebookBtn").onclick = function () {
 
     if (confirm("确定清空全部错题吗？")) {
@@ -107,18 +150,26 @@ function renderNotebook() {
 
 };
 
-}
-function deleteQuestion(index) {
+async function deleteQuestion(id) {
 
-    let data = getNotebook();
+    if (!confirm("确定删除这道错题吗？")) {
+        return;
+    }
 
-    data.splice(index, 1);
+    const { error } = await supabaseClient
+        .from("mistakes")
+        .delete()
+        .eq("id", id);
 
-    saveNotebook(data);
+    if (error) {
+        console.error(error);
+        alert("删除失败");
+        return;
+    }
 
     renderNotebook();
-
 }
+
 // ================= 页面加载后绑定事件（关键修复） =================
 window.onload = function () {
 
@@ -142,24 +193,17 @@ window.onload = function () {
     const saveBtn = document.getElementById("saveBtn");
 
     if (saveBtn) {
-        saveBtn.onclick = function () {
-
-            const question =
-    document.getElementById("questionInput").value;
-
-const item = {
-    question: question,
-    category: classifyQuestion(question),
-    time: new Date().toLocaleString()
-};
-
-            let data = getNotebook();
-            data.push(item);
-            saveNotebook(data);
-
-            renderNotebook();
-
-            alert("已加入错题本 ⭐");
+        saveBtn.onclick = async function () {
+            await supabaseClient
+            .from("mistakes")
+            .insert([
+                {
+                    question: question,
+                    category: classifyQuestion(question)
+                }
+      ]);
+        renderNotebook();
+        alert("已加入云端错题本 ⭐");
         };
     }
 
