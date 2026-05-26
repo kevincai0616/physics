@@ -1,3 +1,4 @@
+let categoryChart = null;
 const supabaseClient = supabase.createClient(
   SUPABASE_URL,
   SUPABASE_KEY
@@ -138,6 +139,62 @@ async function renderNotebook() {
         });
 
 }
+async function renderStatistics() {
+
+    const { data, error } = await supabaseClient
+        .from("mistakes")
+        .select("category");
+
+    if (error) {
+        console.error(error);
+        return;
+    }
+
+    const counts = {
+        力学: 0,
+        电学: 0,
+        光学: 0,
+        热学: 0,
+        其他: 0
+    };
+
+    data.forEach(item => {
+
+        if (counts[item.category] !== undefined) {
+            counts[item.category]++;
+        } else {
+            counts["其他"]++;
+        }
+
+    });
+
+    const ctx =
+        document.getElementById("categoryChart");
+
+    if (categoryChart) {
+        categoryChart.destroy();
+    }
+
+    categoryChart = new Chart(ctx, {
+        type: "pie",
+        data: {
+            labels: Object.keys(counts),
+            datasets: [{
+                data: Object.values(counts)
+            }]
+        },
+        options: {
+            responsive: true,
+            plugins: {
+                title: {
+                    display: true,
+                    text: "错题分类统计"
+                }
+            }
+        }
+    });
+
+}
 
     document.getElementById("clearNotebookBtn").onclick = function () {
 
@@ -146,6 +203,7 @@ async function renderNotebook() {
         localStorage.removeItem("notebook");
 
         renderNotebook();
+        renderStatistics();
     }
 
 };
@@ -168,6 +226,7 @@ async function deleteQuestion(id) {
     }
 
     renderNotebook();
+    renderStatistics();
 }
 
 // ================= 页面加载后绑定事件（关键修复） =================
@@ -203,11 +262,13 @@ window.onload = function () {
                 }
       ]);
         renderNotebook();
+        renderStatistics();
         alert("已加入云端错题本 ⭐");
         };
     }
 
     renderNotebook();
+    renderStatistics();
 };
 function classifyQuestion(question) {
 
