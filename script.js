@@ -139,7 +139,7 @@ async function renderNotebook() {
         });
 
 }
-async function renderStatistics() {
+async function rendernotebook() {
 
     const { data, error } = await supabaseClient
         .from("mistakes")
@@ -311,4 +311,56 @@ function classifyQuestion(question) {
     }
 
     return "其他";
+}
+let categoryChart = null;
+
+async function renderStatistics() {
+
+    const { data, error } = await supabaseClient
+        .from("mistakes")
+        .select("category");
+
+    if (error) {
+        console.error(error);
+        return;
+    }
+
+    const counts = {
+        力学: 0,
+        电学: 0,
+        光学: 0,
+        热学: 0,
+        其他: 0
+    };
+
+    data.forEach(item => {
+
+        if (counts[item.category] !== undefined) {
+            counts[item.category]++;
+        } else {
+            counts["其他"]++;
+        }
+
+    });
+
+    const ctx =
+        document.getElementById("categoryChart");
+
+    if (categoryChart) {
+        categoryChart.destroy();
+    }
+
+    categoryChart = new Chart(ctx, {
+        type: "pie",
+        data: {
+            labels: Object.keys(counts),
+            datasets: [{
+                data: Object.values(counts)
+            }]
+        },
+        options: {
+            responsive: true
+        }
+    });
+
 }
