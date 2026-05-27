@@ -58,6 +58,10 @@ async function renderNotebook() {
     const list = document.getElementById("notebookList");
 
     list.innerHTML = "";
+    const keyword =
+        document.getElementById("searchInput")
+        ?.value
+        .toLowerCase() || "";
 
     const { data, error } = await supabaseClient
         .from("mistakes")
@@ -69,13 +73,18 @@ async function renderNotebook() {
         list.innerHTML = "<p>读取失败</p>";
         return;
     }
+    const filteredData = data.filter(item =>
+        item.question
+            .toLowerCase()
+            .includes(keyword)
+    );
 
-    if (data.length === 0) {
+    if (filteredData.length === 0) {
         list.innerHTML = "<p>暂无错题</p>";
         return;
     }
 
-    data.forEach((item) => {
+    filteredData.forEach((item) => {
 
         const categoryColor = {
             "力学": "#1e88e5",
@@ -139,7 +148,7 @@ async function renderNotebook() {
         });
 
 }
-async function rendernotebook() {
+async function renderStatistics() {
 
     const { data, error } = await supabaseClient
         .from("mistakes")
@@ -200,8 +209,6 @@ async function rendernotebook() {
 
     if (confirm("确定清空全部错题吗？")) {
 
-        localStorage.removeItem("notebook");
-
         renderNotebook();
         renderStatistics();
     }
@@ -247,22 +254,35 @@ window.onload = function () {
         const result = await aiAnalysis(text);
         document.getElementById("cn").innerText = result.answer;
     };
+    document
+    .getElementById("searchInput")
+    .addEventListener("input", () => {
+        renderNotebook();
+
+    });
+}
 
     // -------- 错题本按钮（已修复） --------
     const saveBtn = document.getElementById("saveBtn");
 
     if (saveBtn) {
         saveBtn.onclick = async function () {
-            await supabaseClient
+
+    const question =
+        document.getElementById("questionInput").value;
+
+        await supabaseClient
             .from("mistakes")
             .insert([
                 {
                     question: question,
                     category: classifyQuestion(question)
                 }
-      ]);
+            ]);
+
         renderNotebook();
         renderStatistics();
+
         alert("已加入云端错题本 ⭐");
         };
     }
@@ -312,55 +332,4 @@ function classifyQuestion(question) {
 
     return "其他";
 }
-let categoryChart = null;
 
-async function renderStatistics() {
-
-    const { data, error } = await supabaseClient
-        .from("mistakes")
-        .select("category");
-
-    if (error) {
-        console.error(error);
-        return;
-    }
-
-    const counts = {
-        力学: 0,
-        电学: 0,
-        光学: 0,
-        热学: 0,
-        其他: 0
-    };
-
-    data.forEach(item => {
-
-        if (counts[item.category] !== undefined) {
-            counts[item.category]++;
-        } else {
-            counts["其他"]++;
-        }
-
-    });
-
-    const ctx =
-        document.getElementById("categoryChart");
-
-    if (categoryChart) {
-        categoryChart.destroy();
-    }
-
-    categoryChart = new Chart(ctx, {
-        type: "pie",
-        data: {
-            labels: Object.keys(counts),
-            datasets: [{
-                data: Object.values(counts)
-            }]
-        },
-        options: {
-            responsive: true
-        }
-    });
-
-}
