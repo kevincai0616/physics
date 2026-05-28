@@ -289,7 +289,7 @@ window.onload = function () {
 
     renderNotebook();
     renderStatistics();
-};
+    
 function classifyQuestion(question) {
 
     const text = question.toLowerCase();
